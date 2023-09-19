@@ -1,0 +1,21 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+}
+
+img, svg {
+    vertical-align: bottom;
+}
+button {
+    cursor: pointer;
+    border: none;
+    font-size: 1em;
+}
