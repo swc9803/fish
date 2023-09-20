@@ -5,8 +5,9 @@
     </div>
     <div v-for="(content, index) in contents" :key="content" class="message">
       <transition name="fade">
-        <div v-show="openBox === index + 1" class="test">
-          {{ content.name }}
+        <div v-show="openBox === index + 1" class="content-wrapper">
+          <p>{{ content.name }}</p>
+          <button @click="moveToPage(content.route)">보러가기</button>
         </div>
       </transition>
     </div>
@@ -19,11 +20,15 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const contents = [
-  { name: "포트폴리오" },
-  { name: "갤러리" },
-  { name: "깃허브" },
-  { name: "코드팬" },
+  { name: "포트폴리오", route: "newsungpf.firebaseapp.com" },
+  { name: "갤러리", route: "sung-gallery.firebaseapp.com" },
+  { name: "깃허브", route: "github.com/swc9803" },
+  { name: "코드팬", route: "codepen.io/swc9803" },
 ];
+
+const moveToPage = (route) => {
+  open(`https://${route}`);
+};
 
 const containerRef = ref();
 const openBox = ref(0);
@@ -41,7 +46,9 @@ const cameraZ = 13; // obj로부터의 카메라 거리
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0c6ceb);
-const loader = new GLTFLoader();
+
+// 안개
+scene.fog = new THREE.FogExp2(0x0c6ceb, 0.02); // 밀도
 
 // 바닥
 const floorGeometry = new THREE.CircleGeometry(26, 50);
@@ -58,9 +65,10 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
 scene.add(light);
 
+const gltfLoader = new GLTFLoader();
 const loadChest = (x, z) => {
   return new Promise((resolve) => {
-    loader.load("/chest.glb", (gltf) => {
+    gltfLoader.load("/chest.glb", (gltf) => {
       const chest = gltf;
       if (gltf.animations && gltf.animations.length > 0) {
         chest.mixer = new THREE.AnimationMixer(chest.scene);
@@ -232,7 +240,7 @@ const onClick = (e) => {
 onMounted(async () => {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-  loader.load("/fish.glb", (gltf) => {
+  gltfLoader.load("/fish.glb", (gltf) => {
     fish = gltf.scene;
     fish.rotation.set(0, Math.PI, 0);
     scene.add(fish);
@@ -285,16 +293,24 @@ onBeforeUnmount(() => {
   height: 60%;
   pointer-events: none;
   z-index: 3;
-  .test {
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     width: 100%;
     height: 100%;
     padding: 20px;
-    font-size: 2em;
+    transform-origin: center;
     text-align: center;
+    font-size: 2em;
     color: white;
     background: rgb(175, 175, 175);
-    transform-origin: center;
-    opacity: 0.2;
+    opacity: 0.8;
+    button {
+      border-radius: 16px;
+      background: white;
+      pointer-events: auto;
+    }
   }
 }
 
