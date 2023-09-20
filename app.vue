@@ -35,19 +35,24 @@ let mixer;
 let fish;
 let chest1, chest2, chest3, chest4;
 
+const fishSpeed = 8;
+const cameraY = 13; // obj로부터의 카메라 높이
+const cameraZ = 13; // obj로부터의 카메라 거리
+
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x555555);
+scene.background = new THREE.Color(0x0c6ceb);
 const loader = new GLTFLoader();
 
-const floorGeometry = new THREE.CircleGeometry(22, 32);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+// 바닥
+const floorGeometry = new THREE.CircleGeometry(26, 50);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x0c48fa });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.set(-Math.PI / 2, 0, 0);
 floor.position.set(0, -1, 0);
 scene.add(floor);
 
 // light
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
 scene.add(ambientLight);
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
@@ -96,8 +101,6 @@ const animate = () => {
   }
 };
 
-const cameraY = 13; // obj로부터의 카메라 높이
-const cameraZ = 13; // obj로부터의 카메라 거리
 const offset = new THREE.Vector3(0, cameraY, -cameraZ);
 
 const onResize = () => {
@@ -110,12 +113,14 @@ const onResize = () => {
   );
 };
 
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
 let box1AnimationPlayed = false;
 let box2AnimationPlayed = false;
 let box3AnimationPlayed = false;
 let box4AnimationPlayed = false;
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
 const onClick = (e) => {
   mouse.x = (e.clientX / containerRef.value.offsetWidth) * 2 - 1;
   mouse.y = -(e.clientY / containerRef.value.offsetHeight) * 2 + 1;
@@ -128,8 +133,7 @@ const onClick = (e) => {
     console.log("클릭 좌표:", intersectionPoint);
 
     const distance = fish.position.distanceTo(intersectionPoint);
-    const speed = 15;
-    const duration = distance / speed;
+    const duration = distance / fishSpeed;
 
     gsap.killTweensOf(fish.position);
     gsap.to(fish.position, {
@@ -230,6 +234,7 @@ onMounted(async () => {
 
   loader.load("/fish.glb", (gltf) => {
     fish = gltf.scene;
+    fish.rotation.set(0, Math.PI, 0);
     scene.add(fish);
   });
 
@@ -246,8 +251,6 @@ onMounted(async () => {
     0.1,
     1000,
   );
-  // camera.position.set(0, 2, 3);
-  // camera.lookAt(0, 0, 0);
 
   init();
   animate();
