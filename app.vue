@@ -86,14 +86,7 @@ const loadChest = (x, z) => {
   });
 };
 
-const init = () => {
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(
-    containerRef.value.offsetWidth,
-    containerRef.value.offsetHeight,
-  );
-  containerRef.value.appendChild(renderer.domElement);
-};
+const offset = new THREE.Vector3(0, cameraY, -cameraZ);
 
 const animate = () => {
   camera.updateMatrixWorld();
@@ -109,16 +102,19 @@ const animate = () => {
   }
 };
 
-const offset = new THREE.Vector3(0, cameraY, -cameraZ);
-
 const onResize = () => {
-  camera.aspect =
-    containerRef.value.offsetWidth / containerRef.value.offsetHeight;
-  camera.updateProjectionMatrix();
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(
     containerRef.value.offsetWidth,
     containerRef.value.offsetHeight,
   );
+  containerRef.value.appendChild(renderer.domElement);
+  camera.aspect =
+    containerRef.value.offsetWidth / containerRef.value.offsetHeight;
+  camera.updateProjectionMatrix();
 };
 
 let box1AnimationPlayed = false;
@@ -260,7 +256,7 @@ onMounted(async () => {
     1000,
   );
 
-  init();
+  onResize();
   animate();
 
   window.addEventListener("resize", onResize);
@@ -278,7 +274,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .wrapper {
   width: 100%;
-  height: 100vh;
+  height: calc(var(--vh) * 100);
   .container {
     width: 100%;
     height: 100%;
