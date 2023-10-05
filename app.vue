@@ -1,7 +1,41 @@
 <template>
   <div>
-    <div class="wrapper">
-      <div ref="containerRef" class="container" />
+    <div class="container">
+      <div class="button-wrapper">
+        <div
+          id="w"
+          ref="wRef"
+          @mousedown="onMouseDown('w')"
+          @mouseup="onMouseUp('w')"
+        >
+          <p>W</p>
+        </div>
+        <div
+          id="a"
+          ref="aRef"
+          @mousedown="onMouseDown('a')"
+          @mouseup="onMouseUp('a')"
+        >
+          <p>A</p>
+        </div>
+        <div
+          id="s"
+          ref="sRef"
+          @mousedown="onMouseDown('s')"
+          @mouseup="onMouseUp('s')"
+        >
+          <p>S</p>
+        </div>
+        <div
+          id="d"
+          ref="dRef"
+          @mousedown="onMouseDown('d')"
+          @mouseup="onMouseUp('d')"
+        >
+          <p>D</p>
+        </div>
+      </div>
+      <div ref="canvasRef" class="wrapper" />
     </div>
     <div v-for="(content, index) in contents" :key="content" class="message">
       <transition name="fade">
@@ -19,6 +53,11 @@ import gsap from "gsap";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+const wRef = ref();
+const aRef = ref();
+const sRef = ref();
+const dRef = ref();
+
 const contents = [
   { name: "포트폴리오", route: "newsungpf.firebaseapp.com" },
   { name: "갤러리", route: "sung-gallery.firebaseapp.com" },
@@ -30,7 +69,7 @@ const moveToPage = (route) => {
   open(`https://${route}`);
 };
 
-const containerRef = ref();
+const canvasRef = ref();
 const openBox = ref(0);
 
 let renderer;
@@ -107,13 +146,9 @@ const onResize = () => {
   document.documentElement.style.setProperty("--vh", `${vh}px`);
 
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(
-    containerRef.value.offsetWidth,
-    containerRef.value.offsetHeight,
-  );
-  containerRef.value.appendChild(renderer.domElement);
-  camera.aspect =
-    containerRef.value.offsetWidth / containerRef.value.offsetHeight;
+  renderer.setSize(canvasRef.value.offsetWidth, canvasRef.value.offsetHeight);
+  canvasRef.value.appendChild(renderer.domElement);
+  camera.aspect = canvasRef.value.offsetWidth / canvasRef.value.offsetHeight;
   camera.updateProjectionMatrix();
 };
 
@@ -126,8 +161,8 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 const onClick = (e) => {
-  mouse.x = (e.clientX / containerRef.value.offsetWidth) * 2 - 1;
-  mouse.y = -(e.clientY / containerRef.value.offsetHeight) * 2 + 1;
+  mouse.x = (e.clientX / canvasRef.value.offsetWidth) * 2 - 1;
+  mouse.y = -(e.clientY / canvasRef.value.offsetHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObject(floor);
@@ -233,6 +268,34 @@ const onClick = (e) => {
   }
 };
 
+const onKeyDown = (e) => {
+  if (e.key === "w" || e === "w") {
+    wRef.value.style.background = "gray";
+  } else if (e.key === "a" || e === "a") {
+    aRef.value.style.background = "gray";
+  } else if (e.key === "s" || e === "s") {
+    sRef.value.style.background = "gray";
+  } else if (e.key === "d" || e === "d") {
+    dRef.value.style.background = "gray";
+  }
+};
+const onKeyUp = (e) => {
+  if (e.key === "w" || e === "w") {
+    wRef.value.style.background = "white";
+  } else if (e.key === "a" || e === "a") {
+    aRef.value.style.background = "white";
+  } else if (e.key === "s" || e === "s") {
+    sRef.value.style.background = "white";
+  } else if (e.key === "d" || e === "d") {
+    dRef.value.style.background = "white";
+  }
+};
+const onMouseDown = (key) => {
+  onKeyDown(key);
+};
+const onMouseUp = (key) => {
+  onKeyUp(key);
+};
 onMounted(async () => {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
@@ -251,7 +314,7 @@ onMounted(async () => {
 
   camera = new THREE.PerspectiveCamera(
     80,
-    containerRef.value.offsetWidth / containerRef.value.offsetHeight,
+    canvasRef.value.offsetWidth / canvasRef.value.offsetHeight,
     0.1,
     1000,
   );
@@ -259,23 +322,65 @@ onMounted(async () => {
   onResize();
   animate();
 
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
   window.addEventListener("resize", onResize);
-  containerRef.value.addEventListener("click", onClick);
+  canvasRef.value.addEventListener("click", onClick);
 });
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf);
   renderer.dispose();
 
+  window.removeEventListener("keydown", onKeyDown);
+  window.removeEventListener("keyup", onKeyUp);
   window.removeEventListener("resize", onResize);
 });
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
+.container {
+  position: relative;
   width: 100%;
   height: calc(var(--vh) * 100);
-  .container {
+  .button-wrapper {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    display: grid;
+    grid-template-areas:
+      ". w ."
+      "a s d";
+    gap: 8px;
+    div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid black;
+      border-radius: 10px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      cursor: pointer;
+      p {
+        font-size: 1.2em;
+        font-weight: 700;
+      }
+    }
+    #w {
+      grid-area: w;
+    }
+    #a {
+      grid-area: a;
+    }
+    #s {
+      grid-area: s;
+    }
+    #d {
+      grid-area: d;
+    }
+  }
+  .wrapper {
     width: 100%;
     height: 100%;
   }
