@@ -2,36 +2,16 @@
   <div>
     <div class="container">
       <div class="button-wrapper">
-        <div
-          id="w"
-          ref="wRef"
-          @mousedown="onMouseDown('w')"
-          @mouseup="onMouseUp('w')"
-        >
+        <div id="w" ref="wRef" @mousedown="onMouseDown('w')">
           <p>W</p>
         </div>
-        <div
-          id="a"
-          ref="aRef"
-          @mousedown="onMouseDown('a')"
-          @mouseup="onMouseUp('a')"
-        >
+        <div id="a" ref="aRef" @mousedown="onMouseDown('a')">
           <p>A</p>
         </div>
-        <div
-          id="s"
-          ref="sRef"
-          @mousedown="onMouseDown('s')"
-          @mouseup="onMouseUp('s')"
-        >
+        <div id="s" ref="sRef" @mousedown="onMouseDown('s')">
           <p>S</p>
         </div>
-        <div
-          id="d"
-          ref="dRef"
-          @mousedown="onMouseDown('d')"
-          @mouseup="onMouseUp('d')"
-        >
+        <div id="d" ref="dRef" @mousedown="onMouseDown('d')">
           <p>D</p>
         </div>
       </div>
@@ -271,30 +251,45 @@ const onClick = (e) => {
 const onKeyDown = (e) => {
   if (e.key === "w" || e === "w") {
     wRef.value.style.background = "gray";
+    gsap.to(fish.position, {
+      z: "+=2",
+    });
   } else if (e.key === "a" || e === "a") {
     aRef.value.style.background = "gray";
+    gsap.to(fish.position, {
+      x: "+=2",
+    });
   } else if (e.key === "s" || e === "s") {
+    gsap.to(fish.position, {
+      z: "-=2",
+    });
     sRef.value.style.background = "gray";
   } else if (e.key === "d" || e === "d") {
+    gsap.to(fish.position, {
+      x: "-=2",
+    });
     dRef.value.style.background = "gray";
   }
 };
 const onKeyUp = (e) => {
-  if (e.key === "w" || e === "w") {
+  if (e.key === "w") {
     wRef.value.style.background = "white";
-  } else if (e.key === "a" || e === "a") {
+  } else if (e.key === "a") {
     aRef.value.style.background = "white";
-  } else if (e.key === "s" || e === "s") {
+  } else if (e.key === "s") {
     sRef.value.style.background = "white";
-  } else if (e.key === "d" || e === "d") {
+  } else if (e.key === "d") {
     dRef.value.style.background = "white";
   }
 };
 const onMouseDown = (key) => {
   onKeyDown(key);
 };
-const onMouseUp = (key) => {
-  onKeyUp(key);
+const onMouseUp = () => {
+  wRef.value.style.background = "white";
+  aRef.value.style.background = "white";
+  sRef.value.style.background = "white";
+  dRef.value.style.background = "white";
 };
 onMounted(async () => {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -324,6 +319,7 @@ onMounted(async () => {
 
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
+  window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onResize);
   canvasRef.value.addEventListener("click", onClick);
 });
@@ -334,6 +330,7 @@ onBeforeUnmount(() => {
 
   window.removeEventListener("keydown", onKeyDown);
   window.removeEventListener("keyup", onKeyUp);
+  window.removeEventListener("mouseup", onMouseUp);
   window.removeEventListener("resize", onResize);
 });
 </script>
@@ -365,6 +362,8 @@ onBeforeUnmount(() => {
       p {
         font-size: 1.2em;
         font-weight: 700;
+        // pointer-events: none;
+        user-select: none;
       }
     }
     #w {
